@@ -66,6 +66,7 @@ jobs:
           vcpkg-install-directory-name: vcpkg-install-tools-${{ github.run_id }}-${{ github.run_attempt }}
           vcpkg-manifest: repo/.vcpkg/vcpkg-tools.json
           vcpkg-platform-toolset-version: ${{ matrix.toolset-version }}
+          vcpkg-staging-directory-name: vcpkg-staging-tools-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Merge output directories
         run: |
           mv vcpkg-output-tools/tools vcpkg-output
