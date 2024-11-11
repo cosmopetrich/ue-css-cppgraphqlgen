@@ -4,6 +4,7 @@
   "dependencies": [
     {
       "name": "cppgraphqlgen"
+      "default-features": true
     }
   ]
 }

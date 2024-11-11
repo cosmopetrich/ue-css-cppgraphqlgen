@@ -1,6 +1,6 @@
 # ue-css-cppgraphqlgen
 
-The [cppgraphqlgen](https://github.com/microsoft/cppgraphqlgen) library packaged for use with Satisfactory modding.
+The [cppgraphqlgen](https://github.com/microsoft/cppgraphqlgen) C++ library packaged for use in Satisfactory modding.
 
 See [.artifact/usage.md](.artifact/usage.md) for usage information.
 

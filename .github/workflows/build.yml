@@ -53,7 +53,7 @@ jobs:
         uses: cosmopetrich/vcpkg-manifest-install-action@dev
         with:
           output-directory: vcpkg-output
-          overlay-ports: repo/.vcpkg/ports
+          overlay-ports-directory: repo/.vcpkg/ports
           triplet: ${{ matrix.triplet }}
           vcpkg-manifest: repo/.vcpkg/vcpkg-lib.json
           vcpkg-platform-toolset-version: ${{ matrix.toolset-version }}
@@ -63,6 +63,7 @@ jobs:
           output-directory: vcpkg-output-tools
           overlay-ports-directory: repo/.vcpkg/ports
           triplet: ${{ matrix.triplet }}
+          vcpkg-install-directory-name: vcpkg-install-tools-${{ github.run_id }}-${{ github.run_attempt }}
           vcpkg-manifest: repo/.vcpkg/vcpkg-tools.json
           vcpkg-platform-toolset-version: ${{ matrix.toolset-version }}
       - name: Merge output directories
