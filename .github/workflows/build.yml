@@ -61,7 +61,7 @@ jobs:
         uses: cosmopetrich/vcpkg-manifest-install-action@dev
         with:
           output-directory: vcpkg-output-tools
-          overlay-ports: repo/.vcpkg/ports
+          overlay-ports-directory: repo/.vcpkg/ports
           triplet: ${{ matrix.triplet }}
           vcpkg-manifest: repo/.vcpkg/vcpkg-tools.json
           vcpkg-platform-toolset-version: ${{ matrix.toolset-version }}
