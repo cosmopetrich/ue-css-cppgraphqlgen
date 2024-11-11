@@ -68,6 +68,7 @@ jobs:
           vcpkg-platform-toolset-version: ${{ matrix.toolset-version }}
           vcpkg-staging-directory-name: vcpkg-staging-tools-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Merge output directories
+        shell: bash
         run: |
           mv vcpkg-output-tools/tools vcpkg-output
           cp -r vcpkg-output-tools/share/* vcpkg-output/share/
