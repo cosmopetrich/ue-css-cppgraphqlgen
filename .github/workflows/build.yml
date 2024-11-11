@@ -24,10 +24,6 @@ jobs:
   install:
     name: Install
     runs-on: ${{ matrix.os }}
-    outputs:
-      baseline: ${{ steps.vcpkg.outputs.baseline }}
-      baseline-short: ${{ steps.vcpkg.outputs.baseline-short }}
-      toolset-version: ${{ steps.vcpkg.outputs.toolset-version }}
     strategy:
       fail-fast: false
       matrix:
@@ -53,8 +49,7 @@ jobs:
         with:
           version: ${{ matrix.msvc-version }}
           toolset-version: ${{ matrix.toolset-version }}
-      - name: Run vcpkg
-        id: vcpkg
+      - name: Run vcpkg (lib)
         uses: cosmopetrich/vcpkg-manifest-install-action@dev
         with:
           output-directory: vcpkg-output
@@ -63,7 +58,6 @@ jobs:
           vcpkg-manifest: repo/.vcpkg/vcpkg-lib.json
           vcpkg-platform-toolset-version: ${{ matrix.toolset-version }}
       - name: Run vcpkg (tools)
-        id: vcpkg
         uses: cosmopetrich/vcpkg-manifest-install-action@dev
         with:
           output-directory: vcpkg-output-tools
@@ -72,7 +66,9 @@ jobs:
           vcpkg-manifest: repo/.vcpkg/vcpkg-tools.json
           vcpkg-platform-toolset-version: ${{ matrix.toolset-version }}
       - name: Merge output directories
-        run: mv vcpkg-output-tools/tools vcpkg-output
+        run: |
+          mv vcpkg-output-tools/tools vcpkg-output
+          cp -r vcpkg-output-tools/share/* vcpkg-output/share/
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
