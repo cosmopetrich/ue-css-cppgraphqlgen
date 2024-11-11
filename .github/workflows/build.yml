@@ -1,0 +1,100 @@
+name: Build
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - .vcpkg/**
+  push:
+    branches:
+      - master
+    paths:
+      - .vcpkg/**
+
+concurrency:
+  group: ${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  install:
+    name: Install
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [Linux, Win64]
+        include:
+          - platform: Linux
+            os: ubuntu-22.04
+            triplet: x64-linux-release
+          - platform: Win64
+            os: windows-2022
+            triplet: x64-windows-static-md-release
+            msvc-version: "14.34-17.4"
+            toolset-version: "14.34.31933"  
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: repo
+          sparse-checkout: .vcpkg
+      - name: Install MSVC
+        if: ${{ matrix.msvc-version && matrix.toolset-version }}
+        uses: cosmopetrich/vs-msvc-component-install-action@dev
+        with:
+          version: ${{ matrix.msvc-version }}
+          toolset-version: ${{ matrix.toolset-version }}
+      - name: Run vcpkg (lib)
+        uses: cosmopetrich/vcpkg-manifest-install-action@dev
+        with:
+          output-directory: vcpkg-output
+          overlay-ports-directory: repo/.vcpkg/ports
+          triplet: ${{ matrix.triplet }}
+          vcpkg-manifest: repo/.vcpkg/vcpkg-lib.json
+          vcpkg-platform-toolset-version: ${{ matrix.toolset-version }}
+      - name: Run vcpkg (tools)
+        uses: cosmopetrich/vcpkg-manifest-install-action@dev
+        with:
+          output-directory: vcpkg-output-tools
+          overlay-ports-directory: repo/.vcpkg/ports
+          triplet: ${{ matrix.triplet }}
+          vcpkg-install-directory-name: vcpkg-install-tools-${{ github.run_id }}-${{ github.run_attempt }}
+          vcpkg-manifest: repo/.vcpkg/vcpkg-tools.json
+          vcpkg-platform-toolset-version: ${{ matrix.toolset-version }}
+          vcpkg-staging-directory-name: vcpkg-staging-tools-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Merge output directories
+        shell: bash
+        run: |
+          mv vcpkg-output-tools/tools vcpkg-output
+          cp -r vcpkg-output-tools/share/* vcpkg-output/share/
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}
+          path: vcpkg-output/*
+          if-no-files-found: error
+  release:
+    name: Release
+    needs: install
+    #if: ${{ github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: repo
+      - name: Retrieve artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Create release
+        uses: cosmopetrich/ue-thirdparty-release-action@dev
+        with:
+          artifacts-directory: artifacts
+          package-name: cppgraphqlgen
+          repo-directory: repo
