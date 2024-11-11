@@ -58,9 +58,21 @@ jobs:
         uses: cosmopetrich/vcpkg-manifest-install-action@dev
         with:
           output-directory: vcpkg-output
+          overlay-ports: repo/.vcpkg/ports
           triplet: ${{ matrix.triplet }}
-          vcpkg-manifest: repo/.vcpkg/vcpkg.json
+          vcpkg-manifest: repo/.vcpkg/vcpkg-lib.json
           vcpkg-platform-toolset-version: ${{ matrix.toolset-version }}
+      - name: Run vcpkg (tools)
+        id: vcpkg
+        uses: cosmopetrich/vcpkg-manifest-install-action@dev
+        with:
+          output-directory: vcpkg-output-tools
+          overlay-ports: repo/.vcpkg/ports
+          triplet: ${{ matrix.triplet }}
+          vcpkg-manifest: repo/.vcpkg/vcpkg-tools.json
+          vcpkg-platform-toolset-version: ${{ matrix.toolset-version }}
+      - name: Merge output directories
+        run: mv vcpkg-output-tools/tools vcpkg-output
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -70,7 +82,7 @@ jobs:
   release:
     name: Release
     needs: install
-    #if: ${{ github.ref == 'refs/heads/master' }}
+    if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
