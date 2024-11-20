@@ -19,7 +19,7 @@ vcpkg_check_features(
     FEATURES
         clientgen   GRAPHQL_BUILD_CLIENTGEN
         rapidjson   GRAPHQL_USE_RAPIDJSON
-	schemagen   GRAPHQL_BUILD_SCHEMAGEN
+        schemagen   GRAPHQL_BUILD_SCHEMAGEN
 )
 
 vcpkg_cmake_configure(
@@ -51,12 +51,11 @@ if ("schemagen" IN_LIST FEATURES)
 endif()
 list(LENGTH tools num_tools)
 if (num_tools GREATER 0)
-vcpkg_copy_tools(
-    TOOL_NAMES ${tools}
-    SEARCH_DIR ${CURRENT_PACKAGES_DIR}/tools/cppgraphqlgen)
+    vcpkg_copy_tools(
+        TOOL_NAMES ${tools}
+        SEARCH_DIR ${CURRENT_PACKAGES_DIR}/tools/cppgraphqlgen)
 endif()
 
 vcpkg_copy_pdbs()
 
 file(INSTALL ${SOURCE_PATH}/LICENSE DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT} RENAME copyright)
-
